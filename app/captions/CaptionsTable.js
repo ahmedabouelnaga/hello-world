@@ -1,8 +1,8 @@
 'use client'
 
-export default function CaptionsTable({ captions }) {
-  const columns = Object.keys(captions[0])
+import VoteControls from './VoteControls'
 
+export default function CaptionsTable({ captions, voteCounts, userVotes, user }) {
   return (
     <div style={{ overflowX: 'auto', marginTop: '20px' }}>
       <table style={{
@@ -12,37 +12,67 @@ export default function CaptionsTable({ captions }) {
       }}>
         <thead>
           <tr style={{ backgroundColor: '#f2f2f2' }}>
-            {columns.map((key) => (
-              <th key={key} style={{
-                border: '1px solid #ddd',
-                padding: '12px',
-                textAlign: 'left',
-                fontWeight: 'bold',
-              }}>
-                {key}
-              </th>
-            ))}
+            <th style={thStyle}>Image</th>
+            <th style={thStyle}>Caption</th>
+            <th style={thStyle}>Rate</th>
           </tr>
         </thead>
         <tbody>
-          {captions.map((caption, index) => (
-            <tr key={index} style={{
-              backgroundColor: index % 2 === 0 ? 'white' : '#f9f9f9',
-            }}>
-              {columns.map((key) => (
-                <td key={key} style={{
-                  border: '1px solid #ddd',
-                  padding: '12px',
-                }}>
-                  {caption[key] !== null && caption[key] !== undefined
-                    ? String(caption[key])
-                    : ''}
+          {captions.map((caption, index) => {
+            const counts = voteCounts[caption.id] || { upvotes: 0, downvotes: 0 }
+            const userVote = userVotes[caption.id] || null
+            const imageUrl = caption.images?.url || null
+
+            return (
+              <tr key={caption.id} style={{
+                backgroundColor: index % 2 === 0 ? 'white' : '#f9f9f9',
+              }}>
+                <td style={tdStyle}>
+                  {imageUrl ? (
+                    <img
+                      src={imageUrl}
+                      alt="Caption image"
+                      style={{ width: '150px', height: 'auto', borderRadius: '4px' }}
+                    />
+                  ) : (
+                    <span style={{ color: '#999' }}>No image</span>
+                  )}
                 </td>
-              ))}
-            </tr>
-          ))}
+                <td style={tdStyle}>
+                  {caption.content}
+                </td>
+                <td style={tdStyle}>
+                  {user ? (
+                    <VoteControls
+                      captionId={caption.id}
+                      upvotes={counts.upvotes}
+                      downvotes={counts.downvotes}
+                      userVote={userVote}
+                    />
+                  ) : (
+                    <span style={{ color: '#999', fontSize: '13px' }}>
+                      Log in to vote
+                    </span>
+                  )}
+                </td>
+              </tr>
+            )
+          })}
         </tbody>
       </table>
     </div>
   )
+}
+
+const thStyle = {
+  border: '1px solid #ddd',
+  padding: '12px',
+  textAlign: 'left',
+  fontWeight: 'bold',
+}
+
+const tdStyle = {
+  border: '1px solid #ddd',
+  padding: '12px',
+  verticalAlign: 'middle',
 }

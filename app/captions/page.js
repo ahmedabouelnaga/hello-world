@@ -9,7 +9,7 @@ export default async function CaptionsPage() {
 
   const { data: captions, error } = await supabase
     .from('captions')
-    .select('*')
+    .select('*, images(url)')
 
   if (error) {
     return (
@@ -18,6 +18,30 @@ export default async function CaptionsPage() {
         <p style={{ color: 'red' }}>Error loading captions: {error.message}</p>
       </div>
     )
+  }
+
+  // Fetch all votes to compute counts per caption
+  const { data: votes } = await supabase
+    .from('caption_votes')
+    .select('caption_id, vote_value, profile_id')
+
+  const voteCounts = {}
+  const userVotes = {}
+  if (votes) {
+    for (const v of votes) {
+      if (!voteCounts[v.caption_id]) {
+        voteCounts[v.caption_id] = { upvotes: 0, downvotes: 0 }
+      }
+      if (v.vote_value === 1) {
+        voteCounts[v.caption_id].upvotes++
+      } else if (v.vote_value === -1) {
+        voteCounts[v.caption_id].downvotes++
+      }
+      // Track the current user's vote per caption
+      if (user && v.profile_id === user.id) {
+        userVotes[v.caption_id] = v.vote_value
+      }
+    }
   }
 
   return (
@@ -44,7 +68,7 @@ export default async function CaptionsPage() {
       ) : (
         <>
           <p>Total records: {captions.length}</p>
-          <CaptionsTable captions={captions} />
+          <CaptionsTable captions={captions} voteCounts={voteCounts} userVotes={userVotes} user={user} />
         </>
       )}
     </div>
