@@ -21,7 +21,10 @@ export default function CaptionsTable({ captions, voteCounts, userVotes, user })
           {captions.map((caption, index) => {
             const counts = voteCounts[caption.id] || { upvotes: 0, downvotes: 0 }
             const userVote = userVotes[caption.id] || null
-            const imageUrl = caption.images?.url || null
+            const imageUrl = caption.images?.url
+              || (caption.image_id && caption.profile_id
+                ? `https://images.almostcrackd.ai/${caption.profile_id}/${caption.image_id}.jpeg`
+                : null)
 
             return (
               <tr key={caption.id} style={{

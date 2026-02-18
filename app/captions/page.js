@@ -1,12 +1,13 @@
 import { createSupabaseServerClient } from '@/lib/supabase-server'
 import SignOutButton from './SignOutButton'
-import CaptionsTable from './CaptionsTable'
+import CaptionsList from './CaptionsList'
 
 export default async function CaptionsPage() {
   const supabase = await createSupabaseServerClient()
 
   const { data: { user } } = await supabase.auth.getUser()
 
+  // Fetch captions with their image URL via foreign key join
   const { data: captions, error } = await supabase
     .from('captions')
     .select('*, images(url)')
@@ -19,6 +20,9 @@ export default async function CaptionsPage() {
       </div>
     )
   }
+
+  // Only show captions that have an accessible image
+  const captionsWithImages = captions.filter(c => c.images && c.images.url)
 
   // Fetch all votes to compute counts per caption
   const { data: votes } = await supabase
@@ -37,7 +41,6 @@ export default async function CaptionsPage() {
       } else if (v.vote_value === -1) {
         voteCounts[v.caption_id].downvotes++
       }
-      // Track the current user's vote per caption
       if (user && v.profile_id === user.id) {
         userVotes[v.caption_id] = v.vote_value
       }
@@ -63,12 +66,12 @@ export default async function CaptionsPage() {
         </div>
       </div>
 
-      {!captions || captions.length === 0 ? (
+      {!captionsWithImages || captionsWithImages.length === 0 ? (
         <p>No captions found.</p>
       ) : (
         <>
-          <p>Total records: {captions.length}</p>
-          <CaptionsTable captions={captions} voteCounts={voteCounts} userVotes={userVotes} user={user} />
+          <p>Total records: {captionsWithImages.length}</p>
+          <CaptionsList captions={captionsWithImages} voteCounts={voteCounts} userVotes={userVotes} user={user} />
         </>
       )}
     </div>
