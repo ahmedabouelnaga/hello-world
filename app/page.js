@@ -7,20 +7,61 @@ export default function Home() {
       flexDirection: 'column',
       justifyContent: 'center',
       alignItems: 'center',
-      minHeight: '100vh',
+      minHeight: 'calc(100vh - 53px)',
       fontFamily: 'system-ui, sans-serif',
-      gap: '20px'
+      padding: '40px 20px',
     }}>
-      <h1>Hello World</h1>
-      <Link href="/captions" style={{
-        padding: '10px 20px',
-        backgroundColor: '#0070f3',
-        color: 'white',
-        textDecoration: 'none',
-        borderRadius: '5px'
+      <div style={{
+        textAlign: 'center',
+        maxWidth: '600px',
       }}>
-        View Captions
-      </Link>
+        <h1 style={{
+          fontSize: '48px',
+          fontWeight: 800,
+          color: '#1a202c',
+          marginBottom: '12px',
+        }}>
+          Crackd
+        </h1>
+        <p style={{
+          fontSize: '18px',
+          color: '#718096',
+          marginBottom: '40px',
+          lineHeight: 1.6,
+        }}>
+          Upload images, generate AI captions, and vote on the funniest ones.
+        </p>
+
+        <div style={{
+          display: 'flex',
+          gap: '16px',
+          justifyContent: 'center',
+          flexWrap: 'wrap',
+        }}>
+          <Link href="/captions" style={{
+            padding: '14px 28px',
+            backgroundColor: '#0070f3',
+            color: 'white',
+            textDecoration: 'none',
+            borderRadius: '8px',
+            fontSize: '16px',
+            fontWeight: 600,
+          }}>
+            Browse Captions
+          </Link>
+          <Link href="/upload" style={{
+            padding: '14px 28px',
+            backgroundColor: '#38a169',
+            color: 'white',
+            textDecoration: 'none',
+            borderRadius: '8px',
+            fontSize: '16px',
+            fontWeight: 600,
+          }}>
+            Upload Image
+          </Link>
+        </div>
+      </div>
     </main>
   )
 }

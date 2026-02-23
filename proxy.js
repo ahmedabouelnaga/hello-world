@@ -29,7 +29,7 @@ export async function proxy(request) {
   const { data: { user } } = await supabase.auth.getUser()
 
   // Protect /captions: redirect unauthenticated users to /login
-  if (!user && request.nextUrl.pathname.startsWith('/captions')) {
+  if (!user && (request.nextUrl.pathname.startsWith('/captions') || request.nextUrl.pathname.startsWith('/upload'))) {
     const url = request.nextUrl.clone()
     url.pathname = '/login'
     return NextResponse.redirect(url)

@@ -20,7 +20,8 @@ export default function CaptionsList({ captions, voteCounts, userVotes, user }) 
             borderRadius: '8px',
             overflow: 'hidden',
             backgroundColor: 'white',
-            boxShadow: '0 2px 4px rgba(0,0,0,0.08)',
+            boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
+            transition: 'box-shadow 0.2s',
             display: 'flex',
             flexDirection: 'column',
           }}>

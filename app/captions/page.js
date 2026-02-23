@@ -1,5 +1,4 @@
 import { createSupabaseServerClient } from '@/lib/supabase-server'
-import SignOutButton from './SignOutButton'
 import CaptionsList from './CaptionsList'
 
 export default async function CaptionsPage() {
@@ -14,7 +13,7 @@ export default async function CaptionsPage() {
 
   if (error) {
     return (
-      <div style={{ padding: '20px' }}>
+      <div style={{ padding: '24px', fontFamily: 'system-ui, sans-serif' }}>
         <h1>Captions</h1>
         <p style={{ color: 'red' }}>Error loading captions: {error.message}</p>
       </div>
@@ -48,31 +47,23 @@ export default async function CaptionsPage() {
   }
 
   return (
-    <div style={{ padding: '20px', fontFamily: 'system-ui, sans-serif' }}>
+    <div style={{ padding: '24px', fontFamily: 'system-ui, sans-serif', maxWidth: '1200px', margin: '0 auto' }}>
       <div style={{
         display: 'flex',
         justifyContent: 'space-between',
         alignItems: 'center',
-        marginBottom: '16px',
+        marginBottom: '20px',
       }}>
-        <h1 style={{ margin: 0 }}>Captions</h1>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-          {user && (
-            <span style={{ fontSize: '14px', color: '#555' }}>
-              {user.email}
-            </span>
-          )}
-          <SignOutButton />
-        </div>
+        <h1 style={{ margin: 0, fontSize: '28px', color: '#1a202c' }}>Captions</h1>
+        <span style={{ fontSize: '14px', color: '#718096' }}>
+          {captionsWithImages.length} caption{captionsWithImages.length !== 1 ? 's' : ''}
+        </span>
       </div>
 
       {!captionsWithImages || captionsWithImages.length === 0 ? (
-        <p>No captions found.</p>
+        <p style={{ color: '#718096', textAlign: 'center', marginTop: '60px' }}>No captions found.</p>
       ) : (
-        <>
-          <p>Total records: {captionsWithImages.length}</p>
-          <CaptionsList captions={captionsWithImages} voteCounts={voteCounts} userVotes={userVotes} user={user} />
-        </>
+        <CaptionsList captions={captionsWithImages} voteCounts={voteCounts} userVotes={userVotes} user={user} />
       )}
     </div>
   )
