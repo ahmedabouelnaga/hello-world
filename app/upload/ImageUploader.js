@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import Link from 'next/link'
 import { createSupabaseBrowserClient } from '@/lib/supabase'
 
 const API_BASE = 'https://api.almostcrackd.ai'
@@ -199,9 +200,21 @@ export default function ImageUploader() {
 
       {/* Success Message */}
       {step === 5 && (
-        <p style={{ color: '#38a169', fontWeight: 'bold', marginBottom: '16px' }}>
-          Captions generated successfully!
-        </p>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '16px' }}>
+          <p style={{ color: '#38a169', fontWeight: 'bold', margin: 0 }}>
+            Captions generated successfully!
+          </p>
+          <Link href="/captions" style={{
+            padding: '6px 14px',
+            backgroundColor: '#0070f3',
+            color: 'white',
+            borderRadius: '6px',
+            fontSize: '13px',
+            textDecoration: 'none',
+          }}>
+            View All Captions
+          </Link>
+        </div>
       )}
 
       {/* Error */}
