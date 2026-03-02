@@ -18,13 +18,29 @@ export default function Navbar() {
       setUser(user)
       setLoading(false)
     })
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null)
+    })
+
+    return () => subscription.unsubscribe()
   }, [])
+
+  async function handleSignIn() {
+    const supabase = createSupabaseBrowserClient()
+    await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: `${window.location.origin}/auth/callback`,
+      },
+    })
+  }
 
   async function handleSignOut() {
     const supabase = createSupabaseBrowserClient()
+    setUser(null)
     await supabase.auth.signOut()
     router.push('/login')
-    router.refresh()
   }
 
   const navLinks = [
@@ -99,17 +115,22 @@ export default function Navbar() {
             </button>
           </>
         )}
-        {!loading && !user && pathname !== '/login' && (
-          <Link href="/login" style={{
-            padding: '6px 14px',
-            backgroundColor: '#0070f3',
-            color: 'white',
-            borderRadius: '6px',
-            fontSize: '13px',
-            textDecoration: 'none',
-          }}>
+        {!loading && !user && (
+          <button
+            onClick={handleSignIn}
+            style={{
+              padding: '6px 14px',
+              backgroundColor: '#0070f3',
+              color: 'white',
+              border: 'none',
+              borderRadius: '6px',
+              fontSize: '13px',
+              cursor: 'pointer',
+              textDecoration: 'none',
+            }}
+          >
             Sign In
-          </Link>
+          </button>
         )}
       </div>
     </nav>
