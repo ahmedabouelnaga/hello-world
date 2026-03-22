@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { createSupabaseBrowserClient } from '@/lib/supabase'
 
@@ -15,6 +15,19 @@ export default function ImageUploader() {
   const [error, setError] = useState(null)
   const [captions, setCaptions] = useState([])
   const [uploadedImageUrl, setUploadedImageUrl] = useState(null)
+  const [flavors, setFlavors] = useState([])
+  const [selectedFlavorId, setSelectedFlavorId] = useState(null)
+
+  useEffect(() => {
+    const supabase = createSupabaseBrowserClient()
+    supabase.from('humor_flavors').select('id, slug, description').order('created_datetime_utc', { ascending: true })
+      .then(({ data }) => {
+        if (data && data.length > 0) {
+          setFlavors(data)
+          setSelectedFlavorId(data[0].id)
+        }
+      })
+  }, [])
 
   function handleFileChange(e) {
     const selected = e.target.files[0]
@@ -93,7 +106,7 @@ export default function ImageUploader() {
       const step4Res = await fetch(`${API_BASE}/pipeline/generate-captions`, {
         method: 'POST',
         headers: authHeaders,
-        body: JSON.stringify({ imageId }),
+        body: JSON.stringify({ imageId, ...(selectedFlavorId && { humorFlavorId: selectedFlavorId }) }),
       })
       if (!step4Res.ok) {
         const errBody = await step4Res.text()
@@ -152,6 +165,34 @@ export default function ImageUploader() {
           </div>
         )}
       </div>
+
+      {/* Humor Flavor Selector */}
+      {flavors.length > 0 && (
+        <div style={{ marginBottom: '16px' }}>
+          <label style={{ display: 'block', marginBottom: '6px', fontSize: '14px', color: '#4a5568', fontWeight: 500 }}>
+            Humor Style
+          </label>
+          <select
+            value={selectedFlavorId || ''}
+            onChange={e => setSelectedFlavorId(e.target.value)}
+            style={{
+              padding: '8px 12px',
+              borderRadius: '6px',
+              border: '1px solid #ddd',
+              fontSize: '14px',
+              width: '100%',
+              maxWidth: '320px',
+              backgroundColor: '#fff',
+            }}
+          >
+            {flavors.map(f => (
+              <option key={f.id} value={f.id}>
+                {f.slug}{f.description ? ` — ${f.description}` : ''}
+              </option>
+            ))}
+          </select>
+        </div>
+      )}
 
       {/* Upload Button */}
       <button
