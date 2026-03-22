@@ -1,9 +1,13 @@
 'use client'
 
 import { createSupabaseBrowserClient } from '@/lib/supabase'
+import { useSearchParams } from 'next/navigation'
+import { Suspense } from 'react'
 
-export default function LoginPage() {
+function LoginContent() {
   const supabase = createSupabaseBrowserClient()
+  const searchParams = useSearchParams()
+  const error = searchParams.get('error')
 
   async function signInWithGoogle() {
     await supabase.auth.signInWithOAuth({
@@ -37,9 +41,14 @@ export default function LoginPage() {
         <h1 style={{ marginBottom: '8px', fontSize: '24px', color: '#1a202c' }}>
           Welcome to Crackd
         </h1>
-        <p style={{ color: '#718096', marginBottom: '32px', fontSize: '15px' }}>
+        <p style={{ color: '#718096', marginBottom: error ? '16px' : '32px', fontSize: '15px' }}>
           Sign in to upload images, generate captions, and vote.
         </p>
+        {error === 'unauthorized' && (
+          <p style={{ color: '#e53e3e', marginBottom: '24px', fontSize: '14px', backgroundColor: '#fff5f5', padding: '10px 14px', borderRadius: '6px', border: '1px solid #fed7d7' }}>
+            Access denied. You must be a superadmin to sign in.
+          </p>
+        )}
         <button
           onClick={signInWithGoogle}
           style={{
@@ -69,5 +78,13 @@ export default function LoginPage() {
         </button>
       </div>
     </main>
+  )
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense>
+      <LoginContent />
+    </Suspense>
   )
 }

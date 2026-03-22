@@ -30,11 +30,30 @@ export async function proxy(request) {
   // Refresh session if expired — required for Server Components
   const { data: { user } } = await supabase.auth.getUser()
 
-  // Protect /captions: redirect unauthenticated users to /login
-  if (!user && (request.nextUrl.pathname.startsWith('/captions') || request.nextUrl.pathname.startsWith('/upload'))) {
-    const url = request.nextUrl.clone()
-    url.pathname = '/login'
-    return NextResponse.redirect(url)
+  const isProtected = request.nextUrl.pathname.startsWith('/captions') || request.nextUrl.pathname.startsWith('/upload')
+
+  if (isProtected) {
+    // Redirect unauthenticated users to /login
+    if (!user) {
+      const url = request.nextUrl.clone()
+      url.pathname = '/login'
+      return NextResponse.redirect(url)
+    }
+
+    // Check superadmin status
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('is_superadmin')
+      .eq('id', user.id)
+      .single()
+
+    if (!profile?.is_superadmin) {
+      await supabase.auth.signOut()
+      const url = request.nextUrl.clone()
+      url.pathname = '/login'
+      url.searchParams.set('error', 'unauthorized')
+      return NextResponse.redirect(url)
+    }
   }
 
   return supabaseResponse

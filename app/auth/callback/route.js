@@ -7,8 +7,19 @@ export async function GET(request) {
 
   if (code) {
     const supabase = await createSupabaseServerClient()
-    const { error } = await supabase.auth.exchangeCodeForSession(code)
-    if (!error) {
+    const { data: { user }, error } = await supabase.auth.exchangeCodeForSession(code)
+    if (!error && user) {
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('is_superadmin')
+        .eq('id', user.id)
+        .single()
+
+      if (!profile?.is_superadmin) {
+        await supabase.auth.signOut()
+        return NextResponse.redirect(`${origin}/login?error=unauthorized`)
+      }
+
       return NextResponse.redirect(`${origin}/captions`)
     }
   }
